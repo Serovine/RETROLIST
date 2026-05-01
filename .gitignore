@@ -1,0 +1,7 @@
+_pycache/
+dist/
+build/
+covers/
+icons/
+*.db
+*.exe
