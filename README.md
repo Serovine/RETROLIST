@@ -27,3 +27,20 @@ A lightweight, desktop-based ROM manager built with Python and CustomTkinter. Re
 * **GUI Framework:** CustomTkinter
 * **Database:** SQLite3
 * **Image Processing:** Pillow (PIL)
+
+## 🎮 How to Use
+
+* Click Menu -> Add Console on the Home screen.
+* Enter the console name and assign the Emulator Path (e.g., nestopia.exe) and the ROMs Folder.
+* Click on the newly created console card to enter its Library View.
+* Click Scan ROMs at the top right to populate your list.
+* Select any game, click Edit to update its metadata/cover, or click Launch to play.
+* To backup or mass-edit data, use the Export/Import CSV options from the main menu.
+
+## ⚠️ Known Issues & Technical Debt
+Currently running as an MVP (Minimum Viable Product).
+UI components in the Library View might require refactoring into separate classes (Master/Detail components) in future updates for better maintainability.
+Ensure your database file (retrolist.db) and image folders (covers/, icons/) are backed up before performing massive CSV imports.
+
+## 📄 License
+MIT License
