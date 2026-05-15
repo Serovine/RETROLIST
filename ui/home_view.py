@@ -4,12 +4,7 @@ from PIL import Image, ImageOps # เพิ่ม ImageOps เพื่อใช
 from tkinter import filedialog, messagebox
 from services.console_service import get_all_consoles
 from services.rom_service import export_roms_to_csv, import_metadata_from_csv
-from ui.dialogs import (
-    open_add_console_dialog, 
-    open_console_settings_dialog, 
-    open_about_dialog,
-    open_reorder_consoles_dialog
-)
+from ui.console_dialogs import open_add_console_dialog, open_console_settings_dialog, open_reorder_consoles_dialog, open_about_dialog
 
 class HomeView(ctk.CTkFrame):
     def __init__(self, master, app_router):
@@ -98,13 +93,13 @@ class HomeView(ctk.CTkFrame):
         lbl_title = ctk.CTkLabel(top_frame, text="EMULATOR & ROM MANAGER", font=("Arial", 28, "bold"))
         lbl_title.pack(side="left", expand=True)
         
-        self.menu_var = ctk.StringVar(value="Menu")
+        self.menu_var = ctk.StringVar(value="☰")
         btn_menu = ctk.CTkOptionMenu(
             top_frame, 
             variable=self.menu_var, 
             # เพิ่ม Export / Import เข้าไปในลิสต์
             values=["Add Console", "Reorder Consoles", "Export Data (CSV)", "Import Data (CSV)", "Toggle Fullscreen", "Options", "About"], 
-            width=120,
+            width=60,
             command=self.handle_menu
         )
         btn_menu.pack(side="right")
@@ -120,12 +115,12 @@ class HomeView(ctk.CTkFrame):
                 cid, name, icon_path, count = console
                 
                 # สร้างกรอบการ์ดหลัก
-                card = ctk.CTkFrame(scroll_frame, width=200, height=210, corner_radius=0, fg_color="white", border_width=2, border_color="#343a40")
+                card = ctk.CTkFrame(scroll_frame, width=200, height=210, corner_radius=0, fg_color="black", border_width=2, border_color="#343a40")
                 card.grid_propagate(False)
                 self.cards.append(card) # เก็บเข้าลิสต์ไว้เพื่อใช้ทำ Responsive
                 
                 # --- Top Area (พื้นที่สีขาว 200x180) ---
-                top_area = ctk.CTkFrame(card, width=200, height=180, fg_color="white", corner_radius=0)
+                top_area = ctk.CTkFrame(card, width=200, height=180, fg_color="black", corner_radius=0)
                 top_area.pack(fill="both", expand=False)
                 top_area.pack_propagate(False) # ล็อกขนาดห้ามหด แม้ไม่มีรูป
                 
@@ -135,21 +130,35 @@ class HomeView(ctk.CTkFrame):
                         if pil_img.mode in ("RGBA", "P"):
                             pil_img = pil_img.convert("RGB")
                         
-                        # ใช้ ImageOps.fit เพื่อครอบรูปให้เต็ม 200x180 เป๊ะๆ โดยไม่เสียสัดส่วน
                         pil_img = pil_img.resize((200, 180), Image.Resampling.LANCZOS)
-                        
                         ctk_img = ctk.CTkImage(light_image=pil_img, dark_image=pil_img, size=(200, 180))
-                        lbl_icon = ctk.CTkLabel(top_area, text="", image=ctk_img)
+                        
+                        # เปลี่ยนจาก Label เป็น Button เพื่อให้ใส่ hover_color ได้
+                        btn_icon = ctk.CTkButton(
+                            top_area, text="", image=ctk_img, 
+                            fg_color="transparent", hover_color="#e2e6ea",  # สีเทาอ่อนๆ เวลากด
+                            corner_radius=0, cursor="hand2",
+                            command=lambda c=cid, n=name: self.app_router.show_library(c, n)
+                        )
                     except:
-                        lbl_icon = ctk.CTkLabel(top_area, text="ERR", font=("Arial", 22, "bold"), text_color="red")
+                        btn_icon = ctk.CTkButton(
+                            top_area, text="ERR", font=("Arial", 22, "bold"), text_color="red", 
+                            fg_color="transparent", hover_color="#e2e6ea", 
+                            corner_radius=0, cursor="hand2",
+                            command=lambda c=cid, n=name: self.app_router.show_library(c, n)
+                        )
                 else:
-                    # ถ้าไม่มีรูป ให้โชว์ชื่อแทน
-                    lbl_icon = ctk.CTkLabel(top_area, text=name.replace(" ", "\n"), font=("Arial", 22, "bold"), text_color="black")
+                    # ถ้าไม่มีรูป ให้โชว์ชื่อแทน (ใช้ Button เหมือนกัน)
+                    btn_icon = ctk.CTkButton(
+                        top_area, text=name.replace(" ", "\n"), font=("Arial", 22, "bold"), text_color="green", 
+                        fg_color="transparent", hover_color="#e2e6ea", 
+                        corner_radius=0, cursor="hand2",
+                        command=lambda c=cid, n=name: self.app_router.show_library(c, n)
+                    )
                 
-                lbl_icon.pack(expand=True, fill="both")
-                lbl_icon.bind("<Button-1>", lambda e, c=cid, n=name: self.app_router.show_library(c, n))
-                top_area.bind("<Button-1>", lambda e, c=cid, n=name: self.app_router.show_library(c, n))
-                
+                # แปะปุ่มให้เต็มพื้นที่
+                btn_icon.pack(expand=True, fill="both")
+
                 # --- Bottom Area (แถบดำด้านล่าง 170x30) ---
                 bottom_area = ctk.CTkFrame(card, height=30, fg_color="black", corner_radius=0)
                 bottom_area.pack(fill="x", side="bottom")

@@ -3,5 +3,6 @@ dist/
 build/
 covers/
 icons/
+dist/
 *.db
 *.exe

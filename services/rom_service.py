@@ -120,7 +120,7 @@ def scan_and_add_roms(console_id):
         return -2 # Folder not found
 
     added_count = 0
-    valid_extensions = ('.smc', '.sfc', '.zip', '.iso', '.bin', '.nes', '.gba', '.gbc', '.gb', '.md', '.z64', '.n64', '.v64')
+    valid_extensions = ('.smc', '.sfc', '.zip', '.iso', '.chd', '.bin', '.nes', '.gba', '.gbc', '.gb', '.md', '.z64', '.n64', '.v64')
 
     for file in os.listdir(rom_folder):
         if file.lower().endswith(valid_extensions):

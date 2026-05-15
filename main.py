@@ -1,7 +1,6 @@
 import customtkinter as ctk
 from database import init_db
 from ui.home_view import HomeView
-# from ui.library_view import LibraryView
 
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
@@ -11,6 +10,7 @@ class RetroLauncher(ctk.CTk):
         super().__init__()
         self.title("RETROLIST")
         self.geometry("800x600")
+        self.minsize(980, 720)
         
         init_db()
 
