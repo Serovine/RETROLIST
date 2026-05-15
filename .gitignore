@@ -1,8 +1,9 @@
-_pycache/
-dist/
-build/
+__pycache__/
+*.pyc
 covers/
 icons/
+roms/
+retrolist.db
 dist/
-*.db
-*.exe
+build/
+*.spec
