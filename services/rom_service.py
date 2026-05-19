@@ -31,7 +31,7 @@ def get_roms_for_console(console_id, sort_by="Added (Newest)", search_term="", g
     elif sort_by == "Year (Old-New)": order_clause = "ORDER BY roms.release_year ASC"
     elif sort_by == "Genre": order_clause = "ORDER BY roms.genre ASC, roms.game_name ASC"
 
-    # จัดการ LIMIT และ OFFSET
+    # ------------------------- LIMIT OFFSET --------------------------
     limit_clause = ""
     params = [console_id, search_term, genre_filter, genre_filter]
     
@@ -120,7 +120,7 @@ def scan_and_add_roms(console_id):
         return -2 # Folder not found
 
     added_count = 0
-    valid_extensions = ('.smc', '.sfc', '.zip', '.iso', '.chd', '.bin', '.nes', '.gba', '.gbc', '.gb', '.md', '.z64', '.n64', '.v64')
+    valid_extensions = ('.smc', '.sfc', '.zip', '.iso', '.chd', '.bin', '.nes', '.gba', '.gbc', '.gb', '.md', '.z64', '.n64', '.v64', '.pce', '.smd', '.gen')
 
     for file in os.listdir(rom_folder):
         if file.lower().endswith(valid_extensions):
@@ -164,7 +164,6 @@ def export_roms_to_csv(filepath):
     """Export ROMs metadata to a CSV file."""
     conn = get_connection()
     cursor = conn.cursor()
-    # ดึงข้อมูลมาเฉพาะที่จำเป็นต้องแก้ (ไม่เอา path ไฟล์รูป หรือ path เครื่อง emu ออกมาให้รก)
     cursor.execute('''
         SELECT r.id, c.name as console_name, r.file_name, r.game_name, 
                r.developer, r.release_year, r.genre, r.language, 
@@ -175,7 +174,7 @@ def export_roms_to_csv(filepath):
     rows = cursor.fetchall()
     headers = [desc[0] for desc in cursor.description]
 
-    # ใช้ utf-8-sig เพื่อป้องกันปัญหา Font ภาษาต่างดาวเวลาเปิดใน Excel
+    # ---------------------- utf-8-sig for MS Excel Edit ----------------------------
     with open(filepath, 'w', newline='', encoding='utf-8-sig') as f:
         writer = csv.writer(f)
         writer.writerow(headers)
@@ -190,7 +189,6 @@ def import_metadata_from_csv(filepath):
     with open(filepath, 'r', encoding='utf-8-sig') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            # เช็กว่ามีคอลัมน์ id ไหม ถ้าไม่มี หรือถูกลบทิ้งไป ให้ข้าม
             if 'id' not in row or not row['id']:
                 continue
                 

@@ -18,20 +18,19 @@ class LibraryView(ctk.CTkFrame):
         self.destroy()
         self.app_router.show_home()
 
+    # --- 1. Prevent Repeating Click ---
     def handle_scan(self):
-        # 1. เปลี่ยนสถานะปุ่มและล็อกห้ามกดซ้ำ
         self.btn_scan.configure(text="⏳ Scanning...", state="disabled", fg_color="#6c757d")
         
-        # 2. สร้างงานแยก (Thread) เพื่อไม่ให้หน้าจอค้าง
+    # --- 2. Thread Work Solution ---
         def scan_task():
             scan_and_add_roms(self.console_id)
-            # 3. พอสแกนเสร็จ ให้กลับมาเรียกฟังก์ชันใน UI (ต้องใช้ .after เพื่อความปลอดภัยของ Tkinter)
             self.after(0, self.on_scan_complete)
             
         threading.Thread(target=scan_task, daemon=True).start()
 
+    # --- 3. Refresh List ---
     def on_scan_complete(self):
-        # 4. คืนชีพปุ่มกลับมาเหมือนเดิม แล้วสั่งรีเฟรชข้อมูล
         self.btn_scan.configure(text="🔄 Scan ROMs", state="normal", fg_color="#007bff")
         self.list_panel.fetch_data()
         
@@ -43,7 +42,7 @@ class LibraryView(ctk.CTkFrame):
         genre = self.genre_var.get()
         sort = self.sort_var.get()
         limit = self.limit_var.get()
-        view_mode = self.view_mode_var.get() # ดึงค่ามุมมองปัจจุบัน
+        view_mode = self.view_mode_var.get() 
         self.list_panel.apply_filters(search, genre, sort, limit, view_mode)
 
     def on_game_selected(self, rom_data):
@@ -63,7 +62,7 @@ class LibraryView(ctk.CTkFrame):
         lbl_title = ctk.CTkLabel(top_frame, text=f"{self.console_name} Library", font=("Arial", 24, "bold"))
         lbl_title.pack(side="left", padx=20)
 
-        # เพิ่มตัวแปรสำหรับปุ่ม Toggle List/Grid
+        # --- Toggle List/Grid ---
         self.view_mode_var = ctk.StringVar(value="List")
         view_toggle = ctk.CTkSegmentedButton(top_frame, values=["List", "Grid"], variable=self.view_mode_var, command=self.trigger_filters)
         view_toggle.pack(side="right", padx=(0, 20))
@@ -96,7 +95,7 @@ class LibraryView(ctk.CTkFrame):
         main_split_frame = ctk.CTkFrame(self, fg_color="transparent")
         main_split_frame.pack(fill="both", expand=True, padx=20, pady=5)
 
-        # ล็อกความกว้างฝั่งซ้ายไว้ที่ 420px (ให้พอดีกับรูป Grid 3 คอลัมน์)
+        # Rom List Column Lock at 420px
         main_split_frame.grid_columnconfigure(0, weight=0, minsize=420)
         main_split_frame.grid_columnconfigure(1, weight=1)
         main_split_frame.grid_rowconfigure(0, weight=1)

@@ -1,23 +1,27 @@
 import customtkinter as ctk
 import os
-from PIL import Image, ImageOps # เพิ่ม ImageOps เพื่อใช้ครอบรูปให้เต็มกรอบ
-from tkinter import filedialog, messagebox
+from PIL import Image, ImageOps
+
 from services.console_service import get_all_consoles
-from services.rom_service import export_roms_to_csv, import_metadata_from_csv
-from ui.console_dialogs import open_add_console_dialog, open_console_settings_dialog, open_reorder_consoles_dialog, open_about_dialog
+from ui.console_dialogs import (
+    open_add_console_dialog, 
+    open_console_settings_dialog, 
+    open_reorder_consoles_dialog, 
+    open_about_dialog,
+    open_export_csv_dialog,
+    open_import_csv_dialog
+)
 
 class HomeView(ctk.CTkFrame):
     def __init__(self, master, app_router):
         super().__init__(master, fg_color="transparent")
         self.app_router = app_router
         self.is_fullscreen = False 
-        self.cards = [] # เก็บลิสต์ของ Card ทั้งหมดเพื่อใช้จัดเรียงใหม่
-        self.current_cols = 4 # ค่าเริ่มต้น
+        self.cards = []
+        self.current_cols = 4
 
         self.pack(fill="both", expand=True)
         self.render_ui()
-        
-        # ดักจับ Event เมื่อมีการย่อ/ขยายหน้าต่าง เพื่อคำนวณ Grid ใหม่ (Responsive)
         self.bind("<Configure>", self.on_resize)
 
     def refresh(self):
@@ -31,29 +35,10 @@ class HomeView(ctk.CTkFrame):
             open_add_console_dialog(self, self.refresh)
         elif choice == "Reorder Consoles":
             open_reorder_consoles_dialog(self, self.refresh)
-        elif choice == "Export Data (CSV)": # <--- เพิ่มตรงนี้
-            path = filedialog.asksaveasfilename(
-                defaultextension=".csv", 
-                filetypes=[("CSV Files", "*.csv")], 
-                initialfile="retrolist_database.csv"
-            )
-            if path:
-                try:
-                    export_roms_to_csv(path)
-                    messagebox.showinfo("Success", "Database exported successfully!\nYou can now open it with Google Sheets or Excel.")
-                except Exception as e:
-                    messagebox.showerror("Error", f"Failed to export: {e}")
-                    
-        elif choice == "Import Data (CSV)": # <--- เพิ่มตรงนี้
-            path = filedialog.askopenfilename(filetypes=[("CSV Files", "*.csv")])
-            if path:
-                try:
-                    import_metadata_from_csv(path)
-                    messagebox.showinfo("Success", "Metadata updated from CSV successfully!")
-                    self.refresh()
-                except Exception as e:
-                    messagebox.showerror("Error", f"Failed to import: {e}\n\nPlease make sure you didn't change the column headers.")
-
+        elif choice == "Export Data (CSV)":
+            open_export_csv_dialog(self)
+        elif choice == "Import Data (CSV)":
+            open_import_csv_dialog(self, self.refresh)
         elif choice == "Toggle Fullscreen":
             main_window = self.winfo_toplevel()
             self.is_fullscreen = not self.is_fullscreen
@@ -63,11 +48,10 @@ class HomeView(ctk.CTkFrame):
         elif choice == "About":
             open_about_dialog(self)
         
-        self.menu_var.set("Menu")
+        self.menu_var.set("☰")
 
     def on_resize(self, event):
         usable_width = event.width - 25 
-        # แก้ตัวหารเป็น 230 เพื่อให้สอดคล้องกับขนาดความกว้างของการ์ดใหม่
         new_cols = max(1, usable_width // 230) 
         
         if new_cols != self.current_cols:
@@ -75,15 +59,12 @@ class HomeView(ctk.CTkFrame):
             self.reorganize_grid()
 
     def reorganize_grid(self):
-        """จัดเรียง Card ใหม่ตามจำนวนคอลัมน์ที่คำนวณได้"""
         for index, card in enumerate(self.cards):
             row = index // self.current_cols
             col = index % self.current_cols
-            # วางตำแหน่งใหม่ (ออโต้ปัดบรรทัด)
             card.grid(row=row, column=col, padx=15, pady=15)
 
     def render_ui(self):
-        # ล้างข้อมูลลิสต์การ์ดเก่าทุกครั้งที่มีการ render ใหม่
         self.cards = []
 
         # --- Top Header ---
@@ -97,8 +78,7 @@ class HomeView(ctk.CTkFrame):
         btn_menu = ctk.CTkOptionMenu(
             top_frame, 
             variable=self.menu_var, 
-            # เพิ่ม Export / Import เข้าไปในลิสต์
-            values=["Add Console", "Reorder Consoles", "Export Data (CSV)", "Import Data (CSV)", "Toggle Fullscreen", "Options", "About"], 
+            values=["Add Console", "Reorder Consoles", "Export Data (CSV)", "Import Data (CSV)", "Toggle Fullscreen", "About"], 
             width=60,
             command=self.handle_menu
         )
@@ -114,15 +94,15 @@ class HomeView(ctk.CTkFrame):
             for index, console in enumerate(consoles):
                 cid, name, icon_path, count = console
                 
-                # สร้างกรอบการ์ดหลัก
+                # Create Main Grid
                 card = ctk.CTkFrame(scroll_frame, width=200, height=210, corner_radius=0, fg_color="black", border_width=2, border_color="#343a40")
                 card.grid_propagate(False)
                 self.cards.append(card) # เก็บเข้าลิสต์ไว้เพื่อใช้ทำ Responsive
                 
-                # --- Top Area (พื้นที่สีขาว 200x180) ---
+                # --- Top Area (200x180) ---
                 top_area = ctk.CTkFrame(card, width=200, height=180, fg_color="black", corner_radius=0)
                 top_area.pack(fill="both", expand=False)
-                top_area.pack_propagate(False) # ล็อกขนาดห้ามหด แม้ไม่มีรูป
+                top_area.pack_propagate(False)
                 
                 if icon_path and os.path.exists(icon_path):
                     try:
@@ -133,10 +113,9 @@ class HomeView(ctk.CTkFrame):
                         pil_img = pil_img.resize((200, 180), Image.Resampling.LANCZOS)
                         ctk_img = ctk.CTkImage(light_image=pil_img, dark_image=pil_img, size=(200, 180))
                         
-                        # เปลี่ยนจาก Label เป็น Button เพื่อให้ใส่ hover_color ได้
                         btn_icon = ctk.CTkButton(
                             top_area, text="", image=ctk_img, 
-                            fg_color="transparent", hover_color="#e2e6ea",  # สีเทาอ่อนๆ เวลากด
+                            fg_color="transparent", hover_color="#e2e6ea",
                             corner_radius=0, cursor="hand2",
                             command=lambda c=cid, n=name: self.app_router.show_library(c, n)
                         )
@@ -148,7 +127,7 @@ class HomeView(ctk.CTkFrame):
                             command=lambda c=cid, n=name: self.app_router.show_library(c, n)
                         )
                 else:
-                    # ถ้าไม่มีรูป ให้โชว์ชื่อแทน (ใช้ Button เหมือนกัน)
+                    # --- No image ---
                     btn_icon = ctk.CTkButton(
                         top_area, text=name.replace(" ", "\n"), font=("Arial", 22, "bold"), text_color="green", 
                         fg_color="transparent", hover_color="#e2e6ea", 
@@ -156,22 +135,20 @@ class HomeView(ctk.CTkFrame):
                         command=lambda c=cid, n=name: self.app_router.show_library(c, n)
                     )
                 
-                # แปะปุ่มให้เต็มพื้นที่
                 btn_icon.pack(expand=True, fill="both")
 
-                # --- Bottom Area (แถบดำด้านล่าง 170x30) ---
+                # --- Bottom Area (170x30) ---
                 bottom_area = ctk.CTkFrame(card, height=30, fg_color="black", corner_radius=0)
                 bottom_area.pack(fill="x", side="bottom")
                 bottom_area.pack_propagate(False)
                 
-                # จำนวน Rom
+                # --- Rom Number ---
                 ctk.CTkLabel(bottom_area, text="Roms", font=("Arial", 12, "bold"), text_color="white").pack(side="left", padx=10)
                 ctk.CTkLabel(bottom_area, text=str(count), font=("Arial", 12, "bold"), text_color="#28a745").pack(side="left", expand=True)
                 
-                # เมนู Setting แต่ละเครื่อง
+                # ---Console Setting ---
                 lbl_set = ctk.CTkLabel(bottom_area, text="⚙️", font=("Arial", 16), text_color="white", cursor="hand2")
                 lbl_set.pack(side="right", padx=10)
                 lbl_set.bind("<Button-1>", lambda e, c=cid, n=name: open_console_settings_dialog(self, c, n, self.refresh))
                 
-        # เรียกจัดเรียง Grid ครั้งแรกตอนโหลดหน้าจอ
         self.reorganize_grid()

@@ -16,12 +16,12 @@ class RomListPanel(ctk.CTkFrame):
         self.current_genre = "All"
         self.current_page = 1
         self.items_per_page = "20"
-        self.current_view_mode = "List" # โหมดเริ่มต้น
+        self.current_view_mode = "List" #Start with List Mode
         
         self.list_buttons = []
         self.selected_rom_id = None
 
-        # รูปใสสำหรับตอนที่เกมไม่มีหน้าปก (ขนาด Thumbnail 100x100)
+        # --------- PlaceHolder Thumbnail 100x100 ----------
         self.empty_thumb = ctk.CTkImage(light_image=Image.new("RGBA", (100, 100), (0, 0, 0, 0)), size=(100, 100))
         
         self.setup_ui()
@@ -80,7 +80,7 @@ class RomListPanel(ctk.CTkFrame):
 
                 if self.current_view_mode == "List":
                     # ====================================
-                    # โหมด List (แบบเดิม)
+                    # Mode List
                     # ====================================
                     btn_game = ctk.CTkButton(
                         self.list_scroll, 
@@ -94,12 +94,12 @@ class RomListPanel(ctk.CTkFrame):
                 
                 else:
                     # ====================================
-                    # โหมด Grid (แบบใหม่: มีรูปโชว์รูป / ไม่มีรูปโชว์กล่องข้อความ)
+                    # Mode Grid
                     # ====================================
                     cover_path = rom.get('cover_path')
                     has_cover = False
                     
-                    # 1. เช็กก่อนว่ามีไฟล์รูปจริงๆ ไหม
+                    # 1. Cover Check
                     if cover_path and os.path.exists(cover_path):
                         try:
                             pil_img = Image.open(cover_path).convert("RGB")
@@ -109,9 +109,8 @@ class RomListPanel(ctk.CTkFrame):
                         except:
                             pass
 
-                    # 2. สร้างปุ่มตามสถานะของรูป
+                    # 2. Create Thumbnails
                     if has_cover:
-                        # กรณีมีรูป: โชว์รูป แล้วใส่ชื่อสั้นๆ ไว้ใต้รูปเหมือนเดิม
                         short_name = game_name[:12] + "..." if len(game_name) > 12 else game_name
                         btn_game = ctk.CTkButton(
                             self.list_scroll, 
@@ -125,11 +124,9 @@ class RomListPanel(ctk.CTkFrame):
                             cursor="hand2"
                         )
                     else:
-                        # กรณีไม่มีรูป: ทำปุ่มเป็นกล่องสีเทา แล้วหั่นชื่อเกมเป็นบรรทัดๆ ให้อยู่ตรงกลาง
-                        # หั่นข้อความบรรทัดละประมาณ 12 ตัวอักษร
                         wrapped_name = "\n".join(textwrap.wrap(game_name, width=12))
                         
-                        # ป้องกันข้อความยาวเกินไปจนล้นกล่อง (จำกัดแค่ 4 บรรทัด)
+                        # Limit 4 Line
                         lines = wrapped_name.split('\n')
                         if len(lines) > 4: 
                             wrapped_name = "\n".join(lines[:3]) + "\n..."
@@ -144,17 +141,16 @@ class RomListPanel(ctk.CTkFrame):
                             cursor="hand2"
                         )
                     
-                    # 3. จัดเรียงลง Grid (3 คอลัมน์)
+                    # 3. Arrange 3 Grid per column
                     columns = 3
                     row_idx = index // columns
                     col_idx = index % columns
                     btn_game.grid(row=row_idx, column=col_idx, padx=5, pady=5)
 
-                # ผูกคำสั่งเมื่อคลิกเหมือนเดิม
                 btn_game.configure(command=lambda r=rom, b=btn_game: self.select_game(r, b))
                 self.list_buttons.append(btn_game)
 
-                # จำเกมที่เคยเลือก
+                # Last Game Remember
                 if hasattr(self, 'selected_rom_id') and rom.get('id', rom.get('rom_id', 0)) == self.selected_rom_id:
                     target_index = index
                     target_rom = rom

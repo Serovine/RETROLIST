@@ -12,7 +12,7 @@ def launch_game(console_id, rom_id):
     console_data = get_console_paths(console_id)
     rom_data = get_rom_file(rom_id)
 
-    # ❌ ไม่มีข้อมูล
+    # ❌ Data Check ---------------------------------------------
     if not console_data or not rom_data:
         return False, "Missing console or ROM data."
 
@@ -24,7 +24,7 @@ def launch_game(console_id, rom_id):
 
     full_rom_path = os.path.join(rom_folder, file_name)
 
-    # ❌ เช็คไฟล์
+    # ❌ File Check ---------------------------------------------
     if not os.path.exists(emu_path):
         return False, f"Emulator not found: {emu_path}"
 

@@ -1,8 +1,9 @@
 import customtkinter as ctk
 import os
 import shutil
-from tkinter import filedialog
+from tkinter import filedialog, messagebox
 from services.console_service import add_console, get_console_by_id, update_console_settings, get_all_consoles, update_console_orders, delete_console
+from services.rom_service import export_roms_to_csv, import_metadata_from_csv
 
 # ==========================================
 # 1. Add Console Dialog
@@ -135,14 +136,14 @@ def open_reorder_consoles_dialog(parent, refresh_callback):
     popup.geometry("350x450")
     popup.grab_set()
 
-    # ดึงข้อมูลคอนโซลมาเก็บเป็น List of Dicts เพื่อให้สลับตำแหน่งง่าย
+    # --- List of Dicts ---
     consoles = get_all_consoles()
     current_order = [{'id': c[0], 'name': c[1]} for c in consoles]
 
     ctk.CTkLabel(popup, text="Sort Consoles", font=("Arial", 20, "bold")).pack(pady=(15, 5))
     ctk.CTkLabel(popup, text="Use arrows to change the order").pack(pady=(0, 10))
 
-    # กล่องแสดงรายชื่อ
+    # --- List Box ---
     list_frame = ctk.CTkScrollableFrame(popup, fg_color="transparent")
     list_frame.pack(fill="both", expand=True, padx=20, pady=5)
 
@@ -213,7 +214,40 @@ def open_confirm_delete_console_dialog(parent, console_id, console_name, refresh
     ctk.CTkButton(btn_frame, text="Cancel", width=120, fg_color="#6c757d", hover_color="#5a6268", command=on_no).pack(side="left", padx=10)
 
 # ==========================================
-# 5. About Dialog
+# 5. Export Data
+# ==========================================
+def open_export_csv_dialog(parent):
+    path = filedialog.asksaveasfilename(
+        parent=parent, 
+        defaultextension=".csv", 
+        filetypes=[("CSV Files", "*.csv")], 
+        initialfile="retrolist_database.csv"
+    )
+    if path:
+        try:
+            export_roms_to_csv(path)
+            messagebox.showinfo("Success", "Database exported successfully!\nYou can now open it with Google Sheets or Excel.")
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to export: {e}")
+
+# ==========================================
+# 6. Import Data
+# ==========================================
+def open_import_csv_dialog(parent, refresh_callback):
+    path = filedialog.askopenfilename(
+        parent=parent,
+        filetypes=[("CSV Files", "*.csv")]
+    )
+    if path:
+        try:
+            import_metadata_from_csv(path)
+            messagebox.showinfo("Success", "Metadata updated from CSV successfully!")
+            refresh_callback()
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to import: {e}\n\nPlease make sure you didn't change the column headers.")
+
+# ==========================================
+# 7. About Menu
 # ==========================================
 def open_about_dialog(parent):
     """Popup window showing software information."""

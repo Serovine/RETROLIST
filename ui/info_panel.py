@@ -9,7 +9,7 @@ class InfoPanel(ctk.CTkScrollableFrame):
         super().__init__(master, **kwargs)
         self.refresh_callback = refresh_callback
         
-        # 1. แก้รูปเปล่าให้เป็นก้อนสีเทาทึบ (#2b2b2b) ขนาด 360x270 ล็อกสเกลให้ตายตัว!
+        # --- Placeholder Box 360x270 ---
         self.empty_cover = ctk.CTkImage(light_image=Image.new("RGB", (360, 270), "#2b2b2b"), size=(360, 270))
         self.current_cover_image = None
         
@@ -17,15 +17,18 @@ class InfoPanel(ctk.CTkScrollableFrame):
         self.clear_panel()
 
     def setup_ui(self):
-        # เปลี่ยนจากการยึด anchor="n" เป็นให้มันขยายตามธรรมชาติ
         top_wrapper = ctk.CTkFrame(self, fg_color="transparent")
         top_wrapper.pack(fill="both", expand=True, pady=20, padx=20) 
 
-        # --- ส่วนที่ 1: รูปปก ---
+        # ==========================================
+        # 1. Cover Image
+        # ==========================================
         self.lbl_cover = ctk.CTkLabel(top_wrapper, text="", width=360, height=270, fg_color="#2b2b2b", corner_radius=10)
         self.lbl_cover.pack(pady=(0, 20))
 
-        # --- ส่วนที่ 2: ปุ่ม Edit / Launch ---
+        # ==========================================
+        # 2. EDIT / Launch
+        # ==========================================
         action_frame = ctk.CTkFrame(top_wrapper, fg_color="transparent")
         action_frame.pack(pady=(0, 20))
 
@@ -35,11 +38,13 @@ class InfoPanel(ctk.CTkScrollableFrame):
         self.btn_launch = ctk.CTkButton(action_frame, text="▶ Launch", width=120, fg_color="#28a745", state="disabled")
         self.btn_launch.pack(side="left", padx=10)
 
-        # --- ส่วนที่ 3: ข้อมูล Metadata ---
+        # ==========================================
+        # 3. METADATA
+        # ==========================================
         info_frame = ctk.CTkFrame(top_wrapper, fg_color="transparent")
         info_frame.pack(fill="x", pady=10, padx=10)
         
-        # ปรับ wrap ให้พอดีกับกรอบรูป (350)
+        # --- Wrap size 350px ---
         self.lbl_title = ctk.CTkLabel(info_frame, text="", font=("Arial", 24, "bold"), justify="left", wraplength=350)
         self.lbl_title.pack(anchor="w", pady=(0, 5))
         
@@ -59,8 +64,9 @@ class InfoPanel(ctk.CTkScrollableFrame):
         self.lbl_file = ctk.CTkLabel(info_frame, text="", font=font_meta, text_color="#adb5bd", justify="left", wraplength=350)
         self.lbl_file.pack(anchor="w", pady=(15, 0))
 
-        # --- ส่วนที่ 4: ปุ่ม Delete ---
-        # 2. ถอดคำสั่ง side="bottom" ออก! ให้มันต่อคิวลงมาปกติ จะได้ไม่ยืด
+        # ==========================================
+        # 4. DELETE
+        # ==========================================
         bottom_right_frame = ctk.CTkFrame(top_wrapper, fg_color="transparent")
         bottom_right_frame.pack(fill="x", pady=(40, 10)) 
         

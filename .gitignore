@@ -1,9 +1,24 @@
+# 1. Python Caches & Bytecode (ไฟล์ขยะของระบบ Python)
 __pycache__/
-*.pyc
-covers/
-icons/
-roms/
-retrolist.db
-dist/
+*.py[cod]
+*$py.class
+
+# 2. VS Code Settings (การตั้งค่า Editor ส่วนตัว ไม่ต้องแชร์ให้ใคร)
+.vscode/
+
+# 3. PyInstaller Build Files (ไฟล์ชั่วคราวและโปรแกรมที่แปลงไฟล์แล้ว)
 build/
+dist/
 *.spec
+
+# 4. Databases (ไฟล์ฐานข้อมูลส่วนตัว)
+retrolist.db
+*.sqlite3
+
+# 5. User Data & Media (ไฟล์รูปปกเกมที่โหลดมาใส่เอง)
+covers/
+
+# 6. Virtual Environments (ถ้ามีโฟลเดอร์จำลองสภาพแวดล้อม)
+venv/
+env/
+.env
