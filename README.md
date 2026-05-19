@@ -15,10 +15,7 @@ A lightweight, desktop-based ROM manager built with Python and CustomTkinter. Re
 
 ## 📸 Screenshots
 
-<<<<<<< HEAD
 =======
-
->>>>>>> e7b2ce6 (chore: clean up repository and update .gitignore)
 | Home View | Library View |
 |:---:|:---:|
 | ![Home](https://i.postimg.cc/dV7z6SG7/retrolist-screenshot1.jpg) | ![Library](https://i.postimg.cc/qMqYBZDJ/retrolist-screenshot2.jpg) |
