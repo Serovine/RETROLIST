@@ -17,6 +17,7 @@ retrolist.db
 
 # 5. User Data & Media (ไฟล์รูปปกเกมที่โหลดมาใส่เอง)
 covers/
+icons/
 
 # 6. Virtual Environments (ถ้ามีโฟลเดอร์จำลองสภาพแวดล้อม)
 venv/
